@@ -9,13 +9,11 @@ public class ChatGPTCallout {
    * @param prompt The prompt to be sent to the OpenAI API.
    * @return The AI-generated response as a string.
    */
-  public static AIResponseWrapper callOpenAI(String prompt) {
+  public static AIResponseWrapper callOpenAI(String prompt, Integer maxTokens) {
     HttpRequest req = new HttpRequest();
     req.setEndpoint('callout:OpenAI/v1/engines/text-davinci-003/completions');
     req.setMethod('POST');
     req.setHeader('Content-Type', 'application/json');
-
-    Integer maxTokens = 150;
 
     Map<String, Object> requestBody = new Map<String, Object>();
     requestBody.put('prompt', prompt);
