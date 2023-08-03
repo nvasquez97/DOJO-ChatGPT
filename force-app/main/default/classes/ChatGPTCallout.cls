@@ -2,29 +2,48 @@
  * This class handles the callout to the OpenAI API to generate a response
  * for a given prompt. It processes the HTTP response and returns the AI-generated response as a string.
  */
-public class ChatGPTCallout {
+public without sharing class ChatGPTCallout {
   /**
    * Makes a callout to the OpenAI API using the provided API key and prompt.
    * @param apiKey The OpenAI API key for authentication.
    * @param prompt The prompt to be sent to the OpenAI API.
+   *
    * @return The AI-generated response as a string.
    */
-  public static AIResponseWrapper callOpenAI(String prompt, Integer maxTokens) {
+  public static AIResponseWrapper callOpenAI(
+    String prompt,
+    Integer maxTokens,
+    String source
+  ) {
     HttpRequest req = new HttpRequest();
-    req.setEndpoint('callout:OpenAI/v1/engines/text-davinci-003/completions');
+    req.setEndpoint('callout:OpenAI/v1/completions');
     req.setMethod('POST');
     req.setHeader('Content-Type', 'application/json');
 
     Map<String, Object> requestBody = new Map<String, Object>();
     requestBody.put('prompt', prompt);
+    requestBody.put('model', 'text-davinci-003');
     requestBody.put('max_tokens', maxTokens);
 
     req.setBody(JSON.serialize(requestBody));
 
     Http http = new Http();
+    Datetime requestTimestamp = Datetime.now();
     HttpResponse res = http.send(req);
+    AIResponseWrapper response = processResponse(res);
 
-    return processResponse(res);
+    ChatGPTCallout__c log = ChatGPTCalloutLogger.logChatGPTCallout(
+      prompt,
+      maxTokens,
+      response,
+      res,
+      requestTimestamp,
+      source
+    );
+    ChatGPTCalloutLogger logger = ChatGPTCalloutLogger.getInstance();
+    logger.addLog(log);
+
+    return response;
   }
 
   /**
