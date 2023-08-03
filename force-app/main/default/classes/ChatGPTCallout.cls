@@ -23,7 +23,7 @@ public without sharing class ChatGPTCallout {
     Map<String, Object> requestBody = new Map<String, Object>();
     requestBody.put('prompt', prompt);
     requestBody.put('model', 'text-davinci-003');
-    requestBody.put('max_tokens', maxTokens);
+    requestBody.put('max_tokens', maxTokens != null ? maxTokens : 200);
 
     req.setBody(JSON.serialize(requestBody));
 

@@ -2,7 +2,7 @@
  * This class provides an invocable method to generate chat responses using the OpenAI API.
  * The method receives a list of ChatGPTVariable objects, each containing a prompt and the number of tokens for the API response.
  */
-public class ChatGPTInvocable {
+public without sharing class ChatGPTInvocable {
   /**
    * Represents a single chat prompt and the number of tokens for the API response.
    */
