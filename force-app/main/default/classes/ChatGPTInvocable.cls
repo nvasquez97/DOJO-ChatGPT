@@ -18,6 +18,12 @@ public class ChatGPTInvocable {
      */
     @InvocableVariable(required=false label='Number of tokens')
     public Integer numberOfTokens;
+
+    /**
+     * The source of the call
+     */
+    @InvocableVariable(required=true label='Source')
+    public String source;
   }
 
   /**
@@ -29,6 +35,7 @@ public class ChatGPTInvocable {
   public static List<ChatGPTResponse> generateChatResponses(
     List<ChatGPTVariable> variables
   ) {
+    ChatGPTCalloutLogger logger = ChatGPTCalloutLogger.getInstance();
     List<ChatGPTResponse> responseWrappers = new List<ChatGPTResponse>();
 
     for (ChatGPTVariable variable : variables) {
@@ -36,20 +43,24 @@ public class ChatGPTInvocable {
       Integer numberOfTokens = variable.numberOfTokens;
       List<String> textChoices = new List<String>();
       ChatGPTResponse response = new ChatGPTResponse();
+      String source = variable.source == null ? 'Flow' : variable.source;
 
       // Make the API call to OpenAI and get the response
       ChatGPTCallout.AIResponseWrapper responseWrapper = ChatGPTCallout.callOpenAI(
         prompt,
-        numberOfTokens
+        numberOfTokens,
+        source
       );
 
       for (ChatGPTCallout.AIChoice choice : responseWrapper.choices) {
         textChoices.add(choice.text);
       }
       response.choices = textChoices;
+      response.firstChoice = textChoices[0];
       responseWrappers.add(response);
     }
 
+    Database.insert(logger.getLogs(), false);
     return responseWrappers;
   }
 
@@ -62,5 +73,11 @@ public class ChatGPTInvocable {
      */
     @InvocableVariable(label='List of text choices to return')
     public List<String> choices;
+
+    /**
+     * The prompt for the API call.
+     */
+    @InvocableVariable(label='First choice returned by Chat GPT')
+    public String firstChoice;
   }
 }
